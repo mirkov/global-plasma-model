@@ -1,13 +1,19 @@
 ;;;; global-plasma-model.asd
 
-(asdf:defsystem #:global-plasma-model
+(asdf:defsystem :global-plasma-model
   :serial t
-  :depends-on (#:mv-gnuplot
-               #:collision-cross-sections-and-rates
-               #:mv-grid-utils
-               #:gsll
-               #:physics-constants
-               #:alexandria)
-  :components ((:file "package")
-               (:file "global-plasma-model")))
+  :depends-on (:mv-gnuplot
+               :collision-cross-sections-and-rates
+               :mv-grid-utils
+               :gsll
+               :physics-constants
+               :alexandria
+	       :lisp-unit)
+  :components ((:file "global-plasma-model-package")
+	       (:file "gpm-setup")
+	       (:file "plasma-parameters")
+	       (:file "geometric-effects")
+	       (:file "particle-balance")
+	       (:file "energy-balance")
+	       (:file "example1")))
 

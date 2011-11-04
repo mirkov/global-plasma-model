@@ -1,1 +1,6 @@
-This is the stub README.txt for the "global-plasma-model" project.
+#+title: Global plasma model
+
+The global plasma model is discussed in Chapter 10 of Lieberman &
+Lichtenberg (2005)
+
+The code here is an extension to a multi-species plasma
