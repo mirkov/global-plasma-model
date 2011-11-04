@@ -1,6 +1,17 @@
 #+title: Global plasma model
 
-The global plasma model is discussed in Chapter 10 of Lieberman &
+The global plasma model is discussed in Chapter 10.2 of Lieberman &
 Lichtenberg (2005)
 
 The code here is an extension to a multi-species plasma
+
+The first version of the code is for an Ar/Xe plasma.  The two species
+have been hard-coded into the code.
+
+The code has been verified against the examples in Lieberman, Section
+10.2.  The agreement is approximate.  This is most likely because of
+differences in the calculated electron temperature (and thus rates and
+energy losses).
+
+The neutrals model and that of ion-ion plasma remains to be
+implemented.
