@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-04 17:34:50EDT geometric-effects.lisp>
+;; Time-stamp: <2011-11-08 13:22:26 geometric-effects.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -42,6 +42,6 @@
   "Effective area
 
 L&L (10.2.11)"
-  (* 2 pi R
+  (* 2 +pi+ R
      (+ (* R hl)
 	(* l hr))))

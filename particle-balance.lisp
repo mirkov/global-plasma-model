@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-04 16:08:50EDT ion-fractions.lisp>
+;; Time-stamp: <2011-11-09 13:59:26 particle-balance.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -24,37 +24,35 @@
 gas fraction X, ionization rate K and bohm velocity u"
   (* ng-deff X K (/ u)))
 
-(defun XI-Ar (ng-deff X Te)
+(defun XI-Ar0 (ng-deff X Te)
   "Argon ion fraction as function of total gas density `ng', `deff',
 Argon molar gas fraction X and temperature Te"
   (Xi ng-deff X (K-Ar+e->ion :phelps-maxwell Te) (Ub 40 Te)))
 
 
-(defun XI-Xe (ng-deff X Te)
+(defun XI-Xe0 (ng-deff X Te)
   "Xenon ion fraction as function of total gas density `ng', `deff',
 Xenon molar gas fraction X and temperature Te"
   (Xi ng-deff X (K-Xe+e->ion :phelps-maxwell (coerce Te 'double-float))
       (Ub 131.29 Te)))
 
-(defun Te-equation (Te ng-deff X-ar X-xe)
-  "Equation for electron temperature.  It returns zero when Te equals
-the electron temperature"
-  (- 1d0
-     (* ng-deff (+ (/ (* X-Ar (K-Ar+e->ion :phelps-maxwell Te))
-		      (Ub 40d0 Te))
-		   (/ (* X-Xe (K-Xe+e->ion :phelps-maxwell Te))
-		      (Ub 131.29d0 Te))))))
+(defun Te-equation0 (Te ng-deff X-Ar X-Xe)
+  "Equation for electron temperature. It returns zero when the sum of
+ion fractions equals zero"
+  (let ((XI-Ar (Xi-Ar ng-deff X-Ar Te))
+	(XI-Xe (Xi-Xe ng-deff X-Xe Te)))
+    (+ -1d0 XI-Ar XI-Xe)))
 
 (let (ng-deff% X-Ar% X-Xe%)
-  (defun Te-equation% (Te)
-    (Te-equation Te ng-deff% x-ar% x-xe%))
-  (defun calc-te (ng-deff x-ar x-xe &optional print-steps)
+  (defun Te-equation0% (Te%)
+      (Te-equation0 Te% ng-deff% X-Ar% X-Xe%))
+  (defun calc-te0 (ng-deff x-ar x-xe &optional print-steps)
     (setf ng-deff% ng-deff
 	  X-Ar% X-Ar
 	  X-Xe% X-Xe)
     (let ((max-iter 50)
 	  (solver
-	   (make-one-dimensional-root-solver-f +brent-fsolver+ 'Te-Equation%
+	   (make-one-dimensional-root-solver-f +brent-fsolver+ 'Te-Equation0%
 					       0.10001d0 10.0d0)))
       (when print-steps
 	(format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
@@ -73,15 +71,21 @@ the electron temperature"
 		   (- upper lower)))
 	 finally (return root)))))
 
-
-(defun print-Te-calc-results (ng-deff X-Ar &optional (stream t))
+(defun particle-balance-calculation0 (ng-deff X-Ar)
+  "Perform a particle balance calculation using the standard model,
+returning a list
+'(Te Xi-Ar Xi-Xe)"
   (let ((X-Xe (- 1d0 X-Ar))) 
-    (let* ((te (calc-te ng-deff X-Ar X-Xe))
-	   (Xi-Ar (Xi-Ar ng-deff X-Ar te))
-	   (Xi-Xe (Xi-Xe ng-deff X-Xe te)))
-      (format stream "ng deff: ~15t~a~%" ng-deff)
-      (format stream "X_Ar: ~15t~5,3f~%" X-ar)
-      (format stream "Te: ~15t~5,3f~%" te)
-      (format stream "Xi_Ar:~14t~6,4f~%" Xi-Ar)
-      (format stream "Xi_Xe:~14t~6,4f~%" Xi-Xe)
-      (format stream "Xi_Ar+Xi_Xe:~14t~6,4f~%" (+ Xi-Ar Xi-Xe)))))
+    (let* ((te (calc-te0 ng-deff X-Ar X-Xe)))
+      (list Te (XI-Ar ng-deff X-Ar Te)
+	    (Xi-Xe ng-deff X-Xe Te)))))
+
+(defun print-Te-calc-results0 (ng-deff X-Ar &optional (stream t))
+  (destructuring-bind (Te Xi-Ar Xi-Xe)
+      (particle-balance-calculation0 ng-deff X-Ar)
+    (format stream "ng deff: ~15t~a~%" ng-deff)
+    (format stream "X_Ar: ~15t~5,3f~%" X-ar)
+    (format stream "Te: ~15t~5,3f~%" te)
+    (format stream "Xi_Ar:~14t~6,4f~%" Xi-Ar)
+    (format stream "Xi_Xe:~14t~6,4f~%" Xi-Xe)
+    (format stream "Xi_Ar+Xi_Xe:~14t~6,4f~%" (+ Xi-Ar Xi-Xe))))

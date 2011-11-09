@@ -1,0 +1,6 @@
+2011-11-08  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* energy-balance.lisp (Vs): Using +pi+ instead of pi
+
+	* geometric-effects.lisp (Aeff): Using +pi+ instead of pi
+

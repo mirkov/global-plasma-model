@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-04 14:32:57EDT gpm-setup.lisp>
+;; Time-stamp: <2011-11-08 13:23:09 gpm-setup.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -18,3 +18,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (in-package :gpm)
+
+(defconstant +pi+ (coerce pi 'double-float)
+  "pi to double precision")
+
