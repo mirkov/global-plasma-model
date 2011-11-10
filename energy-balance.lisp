@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-09 13:49:59 energy-balance.lisp>
+;; Time-stamp: <2011-11-10 09:40:22 energy-balance.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -57,26 +57,30 @@ L&L (10.2.9)"
 
 
 
+(defun calc-ne% (Pabs A Xi-Ar Ub-Ar E-Ar Xi-Xe Ub-Xe E-Xe)
+  (/ Pabs
+     (* +mksa-electron-charge+ A
+	(+ (* Xi-Ar Ub-Ar E-Ar)
+	   (* Xi-Xe Ub-Xe E-Xe)))))
+
 (defun calc-ne0 (Pabs A Vs XI-Ar XI-Xe Te)
   "Calculate the electron density
 
 L&L (10.2.15)"
-  (let ((u-Ar (ub 40 Te))
-	(u-Xe (ub 131.29 Te))
+  (let ((Ub-Ar (ub 40 Te))
+	(Ub-Xe (ub 131.29 Te))
 	(E-Ar (energy/Ar+ Vs Te))
 	(E-Xe (energy/Xe+ Vs Te)))
-    (/ Pabs
-       (* +mksa-electron-charge+ A
-	  (+ (* Xi-Ar u-Ar E-Ar)
-	     (* Xi-Xe u-Xe E-Xe))))))
+    (calc-ne% Pabs A Xi-Ar Ub-Ar E-Ar Xi-Xe Ub-Xe E-Xe)))
 
-(defun calc-ne (Pabs A Vs Te)
+(defun calc-ne (ng-deff X-Ar X-Xe Te Ti Pabs A Vs)
   "Calculate the electron density
 
 L&L (10.2.15)"
   (let ((E-Ar (energy/Ar+ Vs Te))
 	(E-Xe (energy/Xe+ Vs Te)))
-    (/ Pabs
-       (* +mksa-electron-charge+ A
-	  (+ (* *XI-Ar* *Ub-Ar* E-Ar)
-	     (* *XI-Xe* *Ub-Xe* E-Xe))))))
+    (destructuring-bind
+	  (i Xi-Ar Xi-Xe Ub-Ar Ub-Xe)
+	(calc-xi&ub ng-deff X-Ar X-Xe Te Ti 1e2 1e2)
+      (declare (ignore i))
+      (calc-ne% Pabs A Xi-Ar Ub-Ar E-Ar Xi-Xe Ub-Xe E-Xe))))

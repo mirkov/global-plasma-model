@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-09 13:59:26 particle-balance.lisp>
+;; Time-stamp: <2011-11-09 16:58:15 particle-balance.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -39,8 +39,8 @@ Xenon molar gas fraction X and temperature Te"
 (defun Te-equation0 (Te ng-deff X-Ar X-Xe)
   "Equation for electron temperature. It returns zero when the sum of
 ion fractions equals zero"
-  (let ((XI-Ar (Xi-Ar ng-deff X-Ar Te))
-	(XI-Xe (Xi-Xe ng-deff X-Xe Te)))
+  (let ((XI-Ar (Xi-Ar0 ng-deff X-Ar Te))
+	(XI-Xe (Xi-Xe0 ng-deff X-Xe Te)))
     (+ -1d0 XI-Ar XI-Xe)))
 
 (let (ng-deff% X-Ar% X-Xe%)
@@ -53,7 +53,7 @@ ion fractions equals zero"
     (let ((max-iter 50)
 	  (solver
 	   (make-one-dimensional-root-solver-f +brent-fsolver+ 'Te-Equation0%
-					       0.10001d0 10.0d0)))
+					       0.10001d0 90.0d0)))
       (when print-steps
 	(format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
       (loop for iter from 0
@@ -71,20 +71,20 @@ ion fractions equals zero"
 		   (- upper lower)))
 	 finally (return root)))))
 
-(defun particle-balance-calculation0 (ng-deff X-Ar)
+(defun particle-balance-calculation0 (ng-deff X-Xe)
   "Perform a particle balance calculation using the standard model,
 returning a list
 '(Te Xi-Ar Xi-Xe)"
-  (let ((X-Xe (- 1d0 X-Ar))) 
+  (let ((X-Ar (- 1d0 X-Xe))) 
     (let* ((te (calc-te0 ng-deff X-Ar X-Xe)))
-      (list Te (XI-Ar ng-deff X-Ar Te)
-	    (Xi-Xe ng-deff X-Xe Te)))))
+      (list Te (XI-Ar0 ng-deff X-Ar Te)
+	    (Xi-Xe0 ng-deff X-Xe Te)))))
 
-(defun print-Te-calc-results0 (ng-deff X-Ar &optional (stream t))
+(defun print-Te-calc-results0 (ng-deff X-Xe &optional (stream t))
   (destructuring-bind (Te Xi-Ar Xi-Xe)
-      (particle-balance-calculation0 ng-deff X-Ar)
+      (particle-balance-calculation0 ng-deff X-Xe)
     (format stream "ng deff: ~15t~a~%" ng-deff)
-    (format stream "X_Ar: ~15t~5,3f~%" X-ar)
+    (format stream "X_Xe: ~15t~5,3f~%" X-Xe)
     (format stream "Te: ~15t~5,3f~%" te)
     (format stream "Xi_Ar:~14t~6,4f~%" Xi-Ar)
     (format stream "Xi_Xe:~14t~6,4f~%" Xi-Xe)

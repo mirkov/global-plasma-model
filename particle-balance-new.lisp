@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-09 13:47:54 particle-balance-new.lisp>
+;; Time-stamp: <2011-11-10 09:53:31 particle-balance-new.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -55,9 +55,7 @@ is unity when Te is correct.
 Returns a list contentaining: iteration count, XI-Ar, XI-Xe, Ub-Ar, Ub-Xe"
   (when print-steps
     (format t "Iteration~12tXI-Ar~22tXI-Xe~33TUb-Ar~43tUB-Xe~%"))
-  (let* (#|(Ub-Ar (if Ub-Ar Ub-Ar (gpm::ub 40 Te)))
-	 (Ub-Xe (if Ub-Xe Ub-Xe (gpm::ub 132 Te)))|#
-	 XI-Ar Xi-Xe
+  (let* (XI-Ar Xi-Xe
 	 (res
 	  (do ((ref-i-1 1d0 ref-i)
 	       (ref-i Ub-Ar Ub-Ar)
@@ -95,7 +93,7 @@ the electron temperature
 We calculate ion fractions using calc-xi&ub, and return 1-(XI-Ar + XI-Xe)
 "
   (- 1d0
-     (let ((*max-iter* 1))
+     (let ((*max-iter* 100))
      (destructuring-bind (i XI-Ar XI-Xe Ub-Ar Ub-Xe)
 	 (calc-xi&ub Ng-deff X-Ar X-Xe Te Ti Ub-Ar Ub-Xe nil nil)
        (declare (ignore i))
@@ -119,7 +117,7 @@ We calculate ion fractions using calc-xi&ub, and return 1-(XI-Ar + XI-Xe)
     (let ((max-iter 50)
 	  (solver
 	   (make-one-dimensional-root-solver-f +brent-fsolver+ 'Te-Equation%
-					       0.10001d0 10.0d0)))
+					       0.10001d0 90.0d0)))
       (when print-steps
 	(format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
       (loop for iter from 0
@@ -138,18 +136,18 @@ We calculate ion fractions using calc-xi&ub, and return 1-(XI-Ar + XI-Xe)
 	 finally (return root)))))
 
 
-(defun particle-balance-calculation (ng-deff X-Ar Ti)
+(defun particle-balance-calculation (ng-deff X-Xe Ti)
   "Perform a particle balance calculation, returning a list
 '(Te Xi-Ar Xi-Xe)"
-  (let ((X-Xe (- 1d0 X-Ar))) 
+  (let ((X-Ar (- 1d0 X-Xe))) 
     (let* ((te (calc-te ng-deff X-Ar X-Xe Ti)))
       (list Te *XI-Ar* *Xi-Xe*))))
 
-(defun print-Te-calc-results (ng-deff X-Ar Ti &optional (stream t))
+(defun print-Te-calc-results (ng-deff X-Xe Ti &optional (stream t))
   (destructuring-bind (Te Xi-Ar Xi-Xe)
-      (particle-balance-calculation ng-deff X-Ar Ti)
+      (particle-balance-calculation ng-deff X-Xe Ti)
     (format stream "ng deff: ~15t~a~%" ng-deff)
-    (format stream "X_Ar: ~15t~5,3f~%" X-ar)
+    (format stream "X_Xe: ~15t~5,3f~%" X-Xe)
     (format stream "Te: ~15t~5,3f~%" te)
     (format stream "Xi_Ar:~14t~6,4f~%" Xi-Ar)
     (format stream "Xi_Xe:~14t~6,4f~%" Xi-Xe)

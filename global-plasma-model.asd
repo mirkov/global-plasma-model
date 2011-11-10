@@ -8,7 +8,8 @@
                :gsll
                :physics-constants
                :alexandria
-	       :lisp-unit)
+	       :lisp-unit
+	       :two-ion-species-sheath)
   :components ((:file "global-plasma-model-package")
 	       (:file "gpm-setup")
 	       (:file "plasma-parameters")
@@ -16,6 +17,6 @@
 	       (:file "particle-balance")
 	       (:file "particle-balance-new")
 	       (:file "energy-balance")
-	       (:file "two-ion-species-sheath")
-	       (:file "example1")))
+	       (:file "example1")
+	       (:file "plots")))
 

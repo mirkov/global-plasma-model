@@ -1,3 +1,25 @@
+2011-11-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* particle-balance.lisp (Te-equation0): Made equation to be
+	explicit in terms of ion fractions, and not in terms of the rates,
+	Bohm velocity, etc
+	(particle-balance-calculation0, print-Te-calc-results0): Changed
+	calling argument from X-Ar to X-Xe since it seems more relevant to
+	my needs
+
+	* particle-balance-new.lisp (calc-te): Increased default root
+	search range to 0.1 - 90
+	(particle-balance-calculation, print-Te-calc-results): Changed
+	calling argument fro X-Ar to X-Xe since it seems more relevant to
+	my needs
+
+	* global-plasma-model-package.lisp (:global-plasma-model)
+	(:global-plasma-model-user): Updated package definitions
+
+	* energy-balance.lisp (calc-ne%): New function used to unify the
+	classic and new
+	(calc-ne0, calc-ne): Now use calc-ne% for the explicit calculation
+
 2011-11-08  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* energy-balance.lisp (Vs): Using +pi+ instead of pi
