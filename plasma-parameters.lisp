@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-04 14:45:02EDT plasma-parameters.lisp>
+;; Time-stamp: <2011-11-18 15:42:27 plasma-parameters.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 (in-package :gpm)
 
 (defun ub (M Te)
-  "Bohm velocity as function of mass (in AMU) and temperature (eV)
+  "Bohm velocity (m/s) as function of mass (in AMU) and temperature (eV)
 
 L&L, p. xxxv"
-  (* 9.8e3 (sqrt (/ Te M))))
+  (* 9.79e3 (sqrt (/ Te M))))

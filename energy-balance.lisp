@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-10 09:40:22 energy-balance.lisp>
+;; Time-stamp: <2011-11-18 16:35:23 energy-balance.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -32,13 +32,23 @@ L&L 10.2.8"
 L&L p. 332"
   (* 2d0 Te))
 
-(defun energy/Ar+ (Vs Te)
-  "Energy lost from the system per each Argon ion/electron pair
+(defgeneric energy/ion (ion Te Vs)
+  (:documentation
+   "Energy lost from the system per each ion/electron pair as function of electrono temperature Te and sheath voltage Vs
 
-L&L (10.2.9)"
-  (+ (energy-loss/Ar+ Te)
-     (Ee Te)
-     (Ei Vs Te)))
+ion is specified as either :Ar or :Xe
+Te is electron temperature in eV
+Vs is in V
+
+L&L (10.2.9)")
+  (:method ((ion (eql :Ar)) Te Vs)
+    (+ (energy-loss/Ar+ Te)
+       (Ee Te)
+       (Ei Vs Te)))
+  (:method ((ion (eql :Xe)) Te Vs)
+    (+ (energy-loss/Xe+ Te)
+       (Ee Te)
+       (Ei Vs Te))))
 
 (defun Vs (Te M)
   "Floating sheath potential
@@ -46,14 +56,6 @@ L&L (10.2.9)"
 L&L 10.2.4"
   (* Te (log (sqrt (/ (* +mksa-mass-proton+ M)
 		      (* 2 +pi+ +mksa-mass-electron+))))))
-
-(defun energy/Xe+ (Vs Te)
-  "Energy lost from the system per each Xenon ion/electron pair
-
-L&L (10.2.9)"
-  (+ (energy-loss/Xe+ Te)
-     (Ee Te)
-     (Ei Vs Te)))
 
 
 
@@ -67,8 +69,8 @@ L&L (10.2.9)"
   "Calculate the electron density
 
 L&L (10.2.15)"
-  (let ((Ub-Ar (ub 40 Te))
-	(Ub-Xe (ub 131.29 Te))
+  (let ((Ub-Ar (ub +m-Ar+ Te))
+	(Ub-Xe (ub +m-Xe+ Te))
 	(E-Ar (energy/Ar+ Vs Te))
 	(E-Xe (energy/Xe+ Vs Te)))
     (calc-ne% Pabs A Xi-Ar Ub-Ar E-Ar Xi-Xe Ub-Xe E-Xe)))

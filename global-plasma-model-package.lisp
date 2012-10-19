@@ -5,7 +5,8 @@
   (:use #:cl :alexandria :gsll :grid
 	:collision-cross-sections-and-rates
 	:mv-gnuplot :mv-grid :lisp-unit
-	:two-ion-species-sheath)
+	:two-ion-species-sheath
+	:mobility-data)
   (:shadow :lisp-unit
 	   :norm)
   (:shadow :lisp-unit
@@ -18,7 +19,7 @@
 	   :Xi :XI-Ar0 :XI-Xe0
 	   :Te-equation0 :Te-equation% :calc-te0
 	   :particle-balance-calculation0 :print-Te-calc-results0
-	   :*tolerance* :*max-iter* :*iisi-coupling
+	   :*tolerance* :*max-iter* :*iisi-coupling*
 	   :*Ub-Ar* :*Ub-Xe* :*XI-Ar* :*XI-Xe*
 	   :Te-equation :Te-equation% :calc-xi&ub :calc-te0
 	   :particle-balance-calculation :print-Te-calc-results))

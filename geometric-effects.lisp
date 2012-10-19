@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-08 13:22:26 geometric-effects.lisp>
+;; Time-stamp: <2011-11-18 15:43:12 geometric-effects.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -20,7 +20,9 @@
 (in-package :gpm)
 
 (defun deff (R l &key (hr 0.3d0) (hl 0.3d0))
-  "Effective length (10.2.13)"
+  "Effective length
+
+Lieberman & Lichtenberg (10.2.13)"
   (* 0.5 (/ (+ (/ hl l)
 	       (/ hr R)))))
 
@@ -41,7 +43,7 @@
 (defun Aeff (R l &key (hr 0.3d0) (hl 0.3d0))
   "Effective area
 
-L&L (10.2.11)"
+Lieberman & Lichtenberg (10.2.11)"
   (* 2 +pi+ R
      (+ (* R hl)
 	(* l hr))))

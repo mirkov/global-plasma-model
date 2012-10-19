@@ -9,14 +9,16 @@
                :physics-constants
                :alexandria
 	       :lisp-unit
-	       :two-ion-species-sheath)
+	       :two-ion-species-sheath
+	       :mobility-data)
   :components ((:file "global-plasma-model-package")
 	       (:file "gpm-setup")
 	       (:file "plasma-parameters")
 	       (:file "geometric-effects")
+	       (:file "iisi-coupling-effects")
 	       (:file "particle-balance")
-	       (:file "particle-balance-new")
 	       (:file "energy-balance")
-	       (:file "example1")
-	       (:file "plots")))
+	       #|(:file "example1")
+	       (:file "plots")|#
+	       #|(:file "fields&mfpaths")|#))
 

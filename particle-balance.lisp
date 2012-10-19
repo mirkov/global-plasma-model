@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-09 16:58:15 particle-balance.lisp>
+;; Time-stamp: <2011-11-18 21:43:16 particle-balance.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -19,41 +19,58 @@
 
 (in-package :gpm)
 
-(defun XI (ng-deff X K u)
+(Defun xi1 (ng-deff X K u)
   "Ion fraction as function of total gas density `ng', `deff', molar
 gas fraction X, ionization rate K and bohm velocity u"
   (* ng-deff X K (/ u)))
 
-(defun XI-Ar0 (ng-deff X Te)
-  "Argon ion fraction as function of total gas density `ng', `deff',
-Argon molar gas fraction X and temperature Te"
-  (Xi ng-deff X (K-Ar+e->ion :phelps-maxwell Te) (Ub 40 Te)))
+(defgeneric Xi (species ng-deff X Te)
+  (:documentation 
+   "`species' ion fraction as function of total gas density `ng' and
+`deff' product, species molar gas fraction `X' and temperature Te
 
+`species' is a keyword, :Ar, or :Xe
+`X' is a number between 0 and 1 (inclusive)
+`Te' is the electron temperature in eV")
+  (:method ((species (eql :Ar)) ng-deff X Te)
+    (Xi1 ng-deff X (K-Ar+e->ion :phelps-maxwell Te) (Ub +m-Ar+ Te)))
+  (:method ((species (eql :Xe)) ng-deff X Te)
+    (Xi1 ng-deff X (K-Xe+e->ion :phelps-maxwell (coerce Te 'double-float))
+	 (Ub +m-Xe+ Te))))
 
-(defun XI-Xe0 (ng-deff X Te)
-  "Xenon ion fraction as function of total gas density `ng', `deff',
-Xenon molar gas fraction X and temperature Te"
-  (Xi ng-deff X (K-Xe+e->ion :phelps-maxwell (coerce Te 'double-float))
-      (Ub 131.29 Te)))
-
-(defun Te-equation0 (Te ng-deff X-Ar X-Xe)
-  "Equation for electron temperature. It returns zero when the sum of
-ion fractions equals zero"
-  (let ((XI-Ar (Xi-Ar0 ng-deff X-Ar Te))
-	(XI-Xe (Xi-Xe0 ng-deff X-Xe Te)))
+(defun particle-balance-defect (Te ng-deff X-Ar X-Xe &optional Ub-Ar Ub-Xe Ti)
+  "Calculate the difference between Xi_Ar + Xi_Xe and unity: (Xi_Ar + Xi_Xe -1)
+as function of Te, ng-deff, X-Ar and X-Xe.
+"
+  (let (Xi-Ar Xi-Xe)
+    (if *iisi-coupling*
+	(let ((*max-iter* 100))
+	  (destructuring-bind (i XI-Ar% XI-Xe% Ub-Ar Ub-Xe)
+	      (calc-xi&ub Ng-deff X-Ar X-Xe Te Ti Ub-Ar Ub-Xe nil nil)
+	    (declare (ignore i))
+	    (setf *Ub-Ar* Ub-Ar
+		  *Ub-Xe* Ub-Xe
+		  *XI-Ar* Xi-Ar
+		  *XI-Xe* Xi-Xe
+		  Xi-Ar Xi-Ar%
+		  Xi-Xe Xi-Xe%)))
+	(setf XI-Ar (Xi :Ar ng-deff X-Ar Te)
+	      XI-Xe (Xi :Xe ng-deff X-Xe Te)))
     (+ -1d0 XI-Ar XI-Xe)))
 
 (let (ng-deff% X-Ar% X-Xe%)
   (defun Te-equation0% (Te%)
-      (Te-equation0 Te% ng-deff% X-Ar% X-Xe%))
-  (defun calc-te0 (ng-deff x-ar x-xe &optional print-steps)
+    (particle-balance-defect Te% ng-deff% X-Ar% X-Xe%))
+  (defun calc-te (ng-deff x-ar x-xe &optional print-steps)
+
     (setf ng-deff% ng-deff
 	  X-Ar% X-Ar
 	  X-Xe% X-Xe)
     (let ((max-iter 50)
+	  (*iisi-coupling* nil) ;; this does not seem to have an effect!!
 	  (solver
 	   (make-one-dimensional-root-solver-f +brent-fsolver+ 'Te-Equation0%
-					       0.10001d0 90.0d0)))
+					       *Te-min* *Te-max*)))
       (when print-steps
 	(format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
       (loop for iter from 0
@@ -62,14 +79,17 @@ ion fractions equals zero"
 	 for upper = (fsolver-upper solver)
 	 do (iterate solver)
 	 while  (and (< iter max-iter)
-		     (not (root-test-interval lower upper 0.0d0 0.001d0)))
+		     (not (root-test-interval lower upper 0.0d0 1d-6)))
 	 do
 	 (when print-steps
 	   (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g~&"
 		   iter lower upper
 		   root (- root (sqrt 5.0d0))
 		   (- upper lower)))
-	 finally (return root)))))
+	 finally (progn
+		   (setf *te-root-delta* (- root *te-root*)
+			 *Te-root* root)
+		   (return root))))))
 
 (defun particle-balance-calculation0 (ng-deff X-Xe)
   "Perform a particle balance calculation using the standard model,
@@ -89,3 +109,4 @@ returning a list
     (format stream "Xi_Ar:~14t~6,4f~%" Xi-Ar)
     (format stream "Xi_Xe:~14t~6,4f~%" Xi-Xe)
     (format stream "Xi_Ar+Xi_Xe:~14t~6,4f~%" (+ Xi-Ar Xi-Xe))))
+

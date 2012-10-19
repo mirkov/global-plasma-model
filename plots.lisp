@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-10 11:00:05 plots.lisp>
+;; Time-stamp: <2011-11-18 15:54:26 plots.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -36,25 +36,35 @@
   (init-gnuplot)
   (start-gnuplot))
 
-(plot-vs-x-xe (1e20 .04)
-  (list (list Te0 :title "Classic")
-	(list Te :title "New")))
+(with-png-output ("electron-temperature.png"
+		  #p"/home/977315/my-software-add-ons/my-lisp/modeling/global-plasma-model/")
+  (set-to ((title "T_e as function Xe fraction")
+	   (xlabel "Xe fraction")
+	   (ylabel "eV"))
+    (plot-vs-x-xe (1e20 .04)
+      (list (list Te0 :title "Classic")
+	    (list Te :title "New")))))
 
 
-(set-to ((title "Ar+/ne and Xe+/ne fraction as function of Xe fraction")
-	 (xlabel "Xe fraction"))
-  (plot-vs-x-xe (1e20 0.04)
-    (let ((XI-Xe0 (gpmap (XI-Ar0 ng-deff @!X-Ar @!Te) X-Ar Te0))
-	  (XI-Ar0 (gpmap (XI-Xe0 ng-deff @!X-Xe @!Te) X-Xe Te0)))
-      (grid-bind (i Xi-Ar Xi-Xe Ub-Ar Ub-Xe)
-	  (gpmap (calc-xi&ub ng-deff @!X-Ar @!X-Xe @!Te Ti 1e5 1e5)
-		 X-Ar X-Xe Te)
-	(list (list Xi-Xe0 :title "Xe-classic")
-	      (list Xi-Ar0 :title "Ar-classic")
-	      (list Xi-xe :title "Xe-new")
-	      (list Xi-Ar :title "Ar-new"))))))
+;;(with-png-output ("ion-fraction.png" #p"/home/977315/my-software-add-ons/my-lisp/modeling/global-plasma-model/")
+(let ((*iisi-coupling* nil))
+  (set-to ((title "Ar+/ne and Xe+/ne fraction as function of Xe fraction")
+	   (xlabel "Xe fraction")
+	   (yrange '(0 1)))
+    (plot-vs-x-xe (1e20 0.04)
+      (let ((XI-Xe0 (gpmap (XI-Ar0 ng-deff @!X-Ar @!Te) X-Ar Te0))
+	    (XI-Ar0 (gpmap (XI-Xe0 ng-deff @!X-Xe @!Te) X-Xe Te0)))
+	(grid-bind (i Xi-Ar Xi-Xe Ub-Ar Ub-Xe)
+	    (gpmap (calc-xi&ub ng-deff @!X-Ar @!X-Xe @!Te Ti 1e5 1e5)
+		   X-Ar X-Xe Te)
+	  (list (list Xi-Xe0 :title "Xe-classic")
+		(list Xi-Ar0 :title "Ar-classic")
+		(list Xi-xe :title "Xe-new")
+		(list Xi-Ar :title "Ar-new")))))))
+;;)
 
-
+(with-png-output ("bohm-velocities.png"
+		  #p"/home/977315/my-software-add-ons/my-lisp/modeling/global-plasma-model/")
 (set-to ((title "Bohm velocities as function of Xe fraction")
 	 (ylabel "[m/s]")
 	 (xlabel "Xe fraction"))
@@ -67,9 +77,11 @@
 	(list (list UXe0 :title "Xe-classic")
 	      (list UAr0 :title "Ar-classic")
 	      (list Uxe :title "Xe-new")
-	      (list UAr :title "Ar-new"))))))
+	      (list UAr :title "Ar-new")))))))
 
-(set-to ((title "Plasma density as function of Xe fraction")
+(with-png-output ("plasma-density.png"
+		  #p"/home/977315/my-software-add-ons/my-lisp/modeling/global-plasma-model/")
+  (set-to ((title "Plasma density as function of Xe fraction")
 	 (ylabel "n_e [m^-3]")
 	 (xlabel "Xenon Fraction")) 
   (plot-vs-x-xe (1e21 0.04)
@@ -80,7 +92,7 @@
       (let ((ne (gpmap (calc-ne ng-deff @!X-Ar @!X-Xe @!Te Ti 1e3 2e-2 10.0) 
 		       X-Ar X-Xe Te)))
 	(list (list ne0 :title "classic")
-	      (list ne :title "new"))))))
+	      (list ne :title "new")))))))
 
 
 
